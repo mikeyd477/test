@@ -11,5 +11,3 @@ void PrintPartition();
 
 /* Destory function */
 void DeletePartition();
-
-//Addeddddd thisss nowwwww

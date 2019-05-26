@@ -88,7 +88,7 @@ int TreeNodesCount(pTree ptree)   //Not sure if it's better to implement it this
 }
 static void Internal_Print_Helper(PELEMENT pElement,pTree ptree)
 {
-	if (pElement->obj == NULL) return;
+	if (pElement == NULL) return;
 	ptree->PRINT_NODE(pElement->obj);
 	for (int j = 0;j < (ptree->k);j++)
 	{
@@ -98,7 +98,7 @@ static void Internal_Print_Helper(PELEMENT pElement,pTree ptree)
 }
 void TreePrint(pTree ptree)
 {
-	if ((ptree->head) == NULL) return;
+	if ((ptree->nodes_num) == 0) return;
 	ptree->PRINT_NODE(ptree->head->obj); //print the first node!
 	for (int i = 0;i < (ptree->k);i++)
 	{
@@ -145,7 +145,10 @@ Result TreeAddLeaf(pTree ptree, int nodekey, pNode pnode)      //What about the 
 	// Case the tree is empty
 	if (ptree->nodes_num == 0)
 	{
-		pElement_KEY = (PELEMENT)malloc(sizeof(ELEMENT));
+		//the pElement_KEY will get the adress of the head Element which we allocated in the "CreateTree" Function!!!
+		pElement_KEY = (ptree->head);
+		//Need to allocate memory for the array of the pointers because it's a dynamic array!!! !! how we can know 
+		pElement_KEY->children = (PELEMENT*)malloc((ptree->k)*sizeof(PELEMENT));
 		if (pElement_KEY) //Check if malloc succeded!!!
 		{
 			ptree->nodes_num = 1; //change the number of nodes to 1!
@@ -157,8 +160,6 @@ Result TreeAddLeaf(pTree ptree, int nodekey, pNode pnode)      //What about the 
 			{ 
 				(pElement_KEY->children)[i] = NULL;
 			}
-
-
 		}
 	}
 	else

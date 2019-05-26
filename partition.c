@@ -68,12 +68,12 @@ void InitPartition()  //The function need to first destroy the tree before makin
 		pSquare->x_right = 1;
 		pSquare->y_left = 0;
 		pSquare->y_right = 1;
+		//Casting the pSquare to void* to use the clonefunction
+		pnode = (void*)pSquare;
+		//Set parameters for the first Element in the Partition
+		TreeAddLeaf(pTreeSquare, 0, pnode);
+		//Test
+		TreePrint(pTreeSquare);
 	}
-	//Casting the pSquare to void* to use the clonefunction
-	pnode = (void*)pSquare;
-	//Set parameters for the first Element in the Partition
-	TreeAddLeaf(pTreeSquare, 0, pnode);
-	//Test
-	TreePrint(pTreeSquare);
 }
 
