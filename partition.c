@@ -46,10 +46,22 @@ pNode SquareCloneFunction(pNode pnode)
 /*---------------------------------------------*/
 
 /*Partition Functions!!!!  */
+
+void DeletePartition()
+{
+	//Destroy the Partition we have so far
+	TreeDestroy(pTreeSquare);
+}
+
 void InitPartition()  //The function need to first destroy the tree before making new one ?
 {
 	pNode pnode;
 	PSQUARE pSquare;
+	//First check if the tree pointer  is not NULL
+	if (pTreeSquare != NULL)
+	{
+		DeletePartition(pTreeSquare);
+	}
 	//Generate the tree
 	pTreeSquare = TreeCreate(SquareGetKeyFunction, SquareCloneFunction, SquarePrintFunction, SquareDelFunction, 4);
 	//DBG
@@ -74,6 +86,19 @@ void InitPartition()  //The function need to first destroy the tree before makin
 		TreeAddLeaf(pTreeSquare, 0, pnode);
 		//Test
 		TreePrint(pTreeSquare);
+		printf("\n");
 	}
+}
+
+static void RefineCell_Helper()
+{
+
+}
+
+void RefineCell(double x, double y)
+{
+
+
+
 }
 

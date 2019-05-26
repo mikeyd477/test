@@ -51,7 +51,7 @@ pTree TreeCreate(GetKeyFunction GET_KEY, CloneFunction CLONE_NODE, PrintFunction
 }
 static void Internal_Del_Helper(PELEMENT pElement,pTree ptree)
 {
-	if (pElement->obj == NULL) return;
+	if (pElement == NULL) return;
 	for (int j = 0;j < (ptree->k);j++)
 	{
 		
@@ -68,7 +68,7 @@ static void Internal_Del_Helper(PELEMENT pElement,pTree ptree)
 
 void TreeDestroy(pTree ptree)
 {
-	if (ptree->head == NULL)
+	if (ptree->nodes_num == 0)
 	{
 		free(ptree);
 		return;
@@ -107,8 +107,8 @@ void TreePrint(pTree ptree)
 }
 static void Internal_element_finder_helper(pTree ptree, int nodekey, PELEMENT pElement_KEY,PELEMENT pElement)
 {
-	if (pElement->obj == NULL) return;
-	if (ptree->GET_KEY(pElement->obj) == nodekey)
+	if (pElement == NULL) return;
+	if (ptree->GET_KEY((pElement->obj)) == nodekey)
 	{
 		pElement_KEY = pElement;
 	}
@@ -116,17 +116,17 @@ static void Internal_element_finder_helper(pTree ptree, int nodekey, PELEMENT pE
 	{
 		for (int j = 0; j < (ptree->k); j++)
 		{
-			Internal_element_finder_helper(ptree, nodekey, pElement_KEY, pElement->children[j]);
+			Internal_element_finder_helper(ptree, nodekey, pElement_KEY, (pElement->children)[j]);
 		}
 	}
 }
 static void Internal_element_finder(pTree ptree, int nodekey,PELEMENT pElement_KEY)
 {
-	if ((ptree->head) == NULL)
+	if ((ptree->nodes_num) == 0)
 	{
 		pElement_KEY = NULL;
 	}
-	else if ((ptree->GET_KEY(ptree->head->obj)) == nodekey)
+	else if ((ptree->GET_KEY((ptree->head->obj))) == nodekey)
 	{
 		pElement_KEY = ptree->head;
 	}
@@ -155,10 +155,14 @@ Result TreeAddLeaf(pTree ptree, int nodekey, pNode pnode)      //What about the 
 			(pElement_KEY->obj) = (ptree->CLONE_NODE(pnode));
 			pElement_KEY->parent = NULL;
 			pElement_KEY->childrenCount = 0;
-			//Reset the children array of pElements
-			for (int i = 0; i < (ptree->k); i++)
-			{ 
-				(pElement_KEY->children)[i] = NULL;
+			//checking the malloc of the children was a success!
+				if (pElement_KEY->children)
+				{
+					//Reset the children array of pElements
+					for (int i = 0; i < (ptree->k); i++)
+					{
+						(pElement_KEY->children)[i] = NULL; //There is a warning i'm not sure about for now!
+					}
 			}
 		}
 	}
@@ -173,6 +177,7 @@ Result TreeAddLeaf(pTree ptree, int nodekey, pNode pnode)      //What about the 
 		}
 		else
 		{
+			//No place for another "child"
 			if (pElement_KEY->childrenCount == (ptree->k))
 			{
 				return FAILURE;
@@ -187,10 +192,12 @@ Result TreeAddLeaf(pTree ptree, int nodekey, pNode pnode)      //What about the 
 					pElement_new->childrenCount = 0;
 					pElement_KEY->childrenCount = pElement_KEY->childrenCount + 1;
 					pElement_KEY->children[j] = pElement_new;
+					//First Allocat memory for the children of the new Element
+					pElement_new->children = (PELEMENT*)malloc((ptree->k) * sizeof(PELEMENT));
 					//reset children array
 					for (int m = 0; m < (ptree->k); m++)
 					{
-						pElement_new->children[m] = NULL;
+						(pElement_new->children)[m] = NULL;
 					}
 					return SUCCESS;
 				}

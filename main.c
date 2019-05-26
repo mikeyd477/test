@@ -37,6 +37,6 @@ int main()
 	fgets(szLine,MAX_LINE_SIZE,stdin);
   }
   
-  //DeletePartition();
+  DeletePartition();
   return 0;
 }
