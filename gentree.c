@@ -317,6 +317,10 @@ PELEMENT* TreeGetChildren(pTree ptree, int nodekey)   //!!!!!No consideration in
 	{
 		return (pElement_KEY->children);
 	}
+	else
+	{
+		return NULL;
+	}
 }
 
 
