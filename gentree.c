@@ -199,6 +199,8 @@ Result TreeAddLeaf(pTree ptree, int nodekey, pNode pnode)      //What about the 
 					{
 						(pElement_new->children)[m] = NULL;
 					}
+					//increase the nodes number in the tree struct!
+					ptree->nodes_num = (ptree->nodes_num) + 1;
 					return SUCCESS;
 				}
 			}

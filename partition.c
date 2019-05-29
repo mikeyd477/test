@@ -169,36 +169,19 @@ static pNode RefineCell_Helper(double x, double y, pNode CurrentNode, pNode Fath
 	else
 	{
 		children_nodes = TreeGetChildren(pTreeSquare, SquareGetKeyFunction(CurrentNode));
-		//check if the square has children case like when the loop is finishing so it's a waste of code!!!
-					/* Mike: This is the same proce
-							int flag_children_empty = 0;
-							for (int i = 0; i < 4; i++)
-							{
-								if (children_nodes != NULL)
-								{
-									flag_children_empty = 1;
-								}
-							}
-							if (flag_children_empty == 1)
-							{
-								return CurrentNode;
-							}
-							else
-							{
-					*/	
 		for (int i = 0; i < 4; i++)
 		{
 			if (children_nodes[i] != NULL)
 			{
 				if (Square_Range_Helper(children_nodes[i], CurrentNode, x, y) == TRUE)
 				{
-					RefineCell_Helper(x, y, children_nodes[i], CurrentNode);
+					return RefineCell_Helper(x, y, children_nodes[i], CurrentNode);
 					break;
 				}
 			}
 
 		}
-		return CurrentNode;
+		 return CurrentNode;
 	}
 }
 
