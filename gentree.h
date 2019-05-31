@@ -25,5 +25,5 @@ Result TreeNodeIsLeaf(pTree, int, Bool*);
 Result TreeDelLeaf(pTree ptree, int nodekey);
 pNode TreeGetRoot(pTree);
 pNode TreeGetNode(pTree,int);
-PELEMENT* TreeGetChildren(pTree,int);
+pNode* TreeGetChildren(pTree,int);
 #endif

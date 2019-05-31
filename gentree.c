@@ -51,7 +51,7 @@ pTree TreeCreate(GetKeyFunction GET_KEY, CloneFunction CLONE_NODE, PrintFunction
 }
 static void Internal_Del_Helper(PELEMENT pElement,pTree ptree)
 {
-	if (pElement->obj == NULL) return;
+	if (pElement == NULL) return;
 	for (int j = 0;j < (ptree->k);j++)
 	{
 		
@@ -68,7 +68,7 @@ static void Internal_Del_Helper(PELEMENT pElement,pTree ptree)
 
 void TreeDestroy(pTree ptree)
 {
-	if (ptree->head == NULL)
+	if (ptree->nodes_num == 0)
 	{
 		free(ptree);
 		return;
@@ -105,30 +105,30 @@ void TreePrint(pTree ptree)
 		Internal_Print_Helper(ptree->head->children[i],ptree);
 	}
 }
-static void Internal_element_finder_helper(pTree ptree, int nodekey, PELEMENT pElement_KEY,PELEMENT pElement)
+static void Internal_element_finder_helper(pTree ptree, int nodekey, PELEMENT* pElement_KEY,PELEMENT pElement)
 {
-	if (pElement->obj == NULL) return;
-	if (ptree->GET_KEY(pElement->obj) == nodekey)
+	if (pElement == NULL) return;
+	if (ptree->GET_KEY((pElement->obj)) == nodekey)
 	{
-		pElement_KEY = pElement;
+		*pElement_KEY = pElement;
 	}
 	else
 	{
 		for (int j = 0; j < (ptree->k); j++)
 		{
-			Internal_element_finder_helper(ptree, nodekey, pElement_KEY, pElement->children[j]);
+			Internal_element_finder_helper(ptree, nodekey, pElement_KEY, (pElement->children)[j]);
 		}
 	}
 }
-static void Internal_element_finder(pTree ptree, int nodekey,PELEMENT pElement_KEY)
+static void Internal_element_finder(pTree ptree, int nodekey,PELEMENT* pElement_KEY)
 {
-	if ((ptree->head) == NULL)
+	if ((ptree->nodes_num) == 0)
 	{
-		pElement_KEY = NULL;
+		*pElement_KEY = NULL;
 	}
-	else if ((ptree->GET_KEY(ptree->head->obj)) == nodekey)
+	else if ((ptree->GET_KEY((ptree->head->obj))) == nodekey)
 	{
-		pElement_KEY = ptree->head;
+		*pElement_KEY = ptree->head;
 	}
 	else
 	{
@@ -155,10 +155,14 @@ Result TreeAddLeaf(pTree ptree, int nodekey, pNode pnode)      //What about the 
 			(pElement_KEY->obj) = (ptree->CLONE_NODE(pnode));
 			pElement_KEY->parent = NULL;
 			pElement_KEY->childrenCount = 0;
-			//Reset the children array of pElements
-			for (int i = 0; i < (ptree->k); i++)
-			{ 
-				(pElement_KEY->children)[i] = NULL;
+			//checking the malloc of the children was a success!
+				if (pElement_KEY->children)
+				{
+					//Reset the children array of pElements
+					for (int i = 0; i < (ptree->k); i++)
+					{
+						(pElement_KEY->children)[i] = NULL; //There is a warning i'm not sure about for now!
+					}
 			}
 		}
 	}
@@ -166,20 +170,21 @@ Result TreeAddLeaf(pTree ptree, int nodekey, pNode pnode)      //What about the 
 	//Case the tree is not empty
 	{
 		//First lets find the pointer to the Element with the desired key!
-		Internal_element_finder(ptree, nodekey, pElement_KEY);
+		Internal_element_finder(ptree, nodekey, &pElement_KEY);
 		if (pElement_KEY == NULL)
 		{
 			return FAILURE;
 		}
 		else
 		{
+			//No place for another "child"
 			if (pElement_KEY->childrenCount == (ptree->k))
 			{
 				return FAILURE;
 			}
 			for (int j=0;j<(ptree->k);j++)
 			{
-				if (pElement_KEY->children[j] != NULL)
+				if (pElement_KEY->children[j] == NULL)
 				{
 					pElement_new = (PELEMENT)malloc(sizeof(ELEMENT));
 					pElement_new->obj = (ptree->CLONE_NODE(pnode));
@@ -187,11 +192,15 @@ Result TreeAddLeaf(pTree ptree, int nodekey, pNode pnode)      //What about the 
 					pElement_new->childrenCount = 0;
 					pElement_KEY->childrenCount = pElement_KEY->childrenCount + 1;
 					pElement_KEY->children[j] = pElement_new;
+					//First Allocat memory for the children of the new Element
+					pElement_new->children = (PELEMENT*)malloc((ptree->k) * sizeof(PELEMENT));
 					//reset children array
 					for (int m = 0; m < (ptree->k); m++)
 					{
-						pElement_new->children[m] = NULL;
+						(pElement_new->children)[m] = NULL;
 					}
+					//increase the nodes number in the tree struct!
+					ptree->nodes_num = (ptree->nodes_num) + 1;
 					return SUCCESS;
 				}
 			}
@@ -203,7 +212,7 @@ Result TreeNodeIsActive(pTree ptree, int nodekey, Bool* pResult )
 {
 	PELEMENT pElement_KEY=NULL;
 	
-	Internal_element_finder(ptree, nodekey, pElement_KEY);
+	Internal_element_finder(ptree, nodekey, &pElement_KEY);
 	if (pElement_KEY == NULL)
 	{
 		return FAILURE;
@@ -225,7 +234,7 @@ Result TreeNodeIsActive(pTree ptree, int nodekey, Bool* pResult )
 Result TreeNodeIsLeaf(pTree ptree, int nodekey, Bool* pResult)
 {
 	PELEMENT pElement_KEY=NULL;
-	Internal_element_finder(ptree, nodekey, pElement_KEY);
+	Internal_element_finder(ptree, nodekey, &pElement_KEY);
 	if (pElement_KEY == NULL)
 	{
 		return FAILURE;
@@ -247,7 +256,7 @@ Result TreeNodeIsLeaf(pTree ptree, int nodekey, Bool* pResult)
 Result TreeDelLeaf(pTree ptree, int nodekey) //Not clear instruction if delete the element struct as well or not !!! 
 {
 	PELEMENT pElement_KEY=NULL;
-	Internal_element_finder(ptree, nodekey, pElement_KEY);
+	Internal_element_finder(ptree, nodekey, &pElement_KEY);
 	if (pElement_KEY == NULL)
 	{
 		return FAILURE;
@@ -290,7 +299,7 @@ pNode TreeGetNode(pTree ptree, int nodekey)
 {
 	pNode temp_pNode;
 	PELEMENT pElement_KEY=NULL;
-	Internal_element_finder(ptree, nodekey, pElement_KEY);
+	Internal_element_finder(ptree, nodekey, &pElement_KEY);
 	if (pElement_KEY == NULL)
 	{
 		return NULL;
@@ -302,16 +311,39 @@ pNode TreeGetNode(pTree ptree, int nodekey)
 	}
 }
 
-PELEMENT* TreeGetChildren(pTree ptree, int nodekey)   //!!!!!No consideration in the case that there is no junction with that key !!!!!
+pNode* TreeGetChildren(pTree ptree, int nodekey)   //!!!!!No consideration in the case that there is no junction with that key !!!!!
 {
-	PELEMENT pElement_KEY=NULL;
-	Internal_element_finder(ptree, nodekey, pElement_KEY);
+	pNode* nodes_array;
+	PELEMENT pElement_KEY = NULL;
+	Internal_element_finder(ptree, nodekey, &pElement_KEY);
 	if (pElement_KEY)
 	{
-		return (pElement_KEY->children);
+		nodes_array = (pNode*)malloc((ptree->k) * sizeof(pNode));
+		if (nodes_array)
+		{
+			for (int i = 0; i < (ptree->k); i++)
+			{
+				if (((pElement_KEY->children)[i]) == NULL)
+				{
+					nodes_array[i] = NULL;
+				}
+				else
+				{
+					nodes_array[i] = (((pElement_KEY->children)[i])->obj);
+				}
+			}
+			return (nodes_array);
+		}
+		else
+		{
+			return NULL;
+		}
+	}
+	else
+	{
+		return NULL;
 	}
 }
-
 
 
 

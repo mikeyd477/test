@@ -25,11 +25,11 @@ int main()
 		y_str = strtok(NULL, delimiters);
 		x = atof(x_str);
 		y = atof(y_str);
-		//RefineCell(x, y);
+		RefineCell(x, y);
 	}
 	else if (!strncmp(command, "PRINT_PARTITION", 15)) {
 		printf("Current partition:\n");
-		//PrintPartition();
+		PrintPartition();
 	}
 	else if (!strncmp(command, "INIT_PARTITION", 14)) {
 		InitPartition();
@@ -37,6 +37,6 @@ int main()
 	fgets(szLine,MAX_LINE_SIZE,stdin);
   }
   
-  //DeletePartition();
+  DeletePartition();
   return 0;
 }
